@@ -1,29 +1,27 @@
 import streamlit as st
 import requests
 
-# Definir la URL de la API
-url = "https://api.afforai.com/api/api_completion"
+# API key and session ID
+api_key = "fcbfdfe8-e9ed-41f3-a7d8-b6587538e84e"
+session_id = "65489d7c9ad727940f2ab26f"
 
-# Configurar los parámetros requeridos por la API
-params = {
-    "apiKey": "fcbfdfe8-e9ed-41f3-a7d8-b6587538e84e",
-    "sessionID": "65489d7c9ad727940f2ab26f",
-    "history": [
-        {
-            "role": "user",
-            "content": "What is AI?"
-        }
-    ],
-    "powerful": True,
-    "google": True
-}
+# Function to call the API
+def call_api(question):
+    url = "https://api.afforai.com/api/api_completion"
+    data = {
+        "apiKey": api_key,
+        "sessionID": session_id,
+        "history": [{"role": "user", "content": question}],
+        "powerful": True,
+        "google": True
+    }
+    response = requests.post(url, json=data)
+    return response.json()['choices'][0]['message']['content']
 
-# Realizar la llamada a la API para obtener la respuesta
-response = requests.post(url, json=params)
-data = response.json()
+# User input
+question = st.text_input("Ask a question about Guatemalan laws:")
 
-# Mostrar la respuesta en la interfaz de Streamlit
-st.write("Respuesta:", data["completions"][0]["choices"][0]["text"])
-
-# Citando la fuente
-st.write("Fuente:", data["completions"][0]["choices"][0]["metadata"]["source"])
+# Display the answer
+if question:
+    answer = call_api(question)
+    st.write(answer)
