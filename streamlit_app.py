@@ -1,42 +1,37 @@
 import streamlit as st
 import requests
 
-# API endpoint and credentials
-API_URL = "https://api.afforai.com/api/api_completion"
-API_KEY = "fcbfdfe8-e9ed-41f3-a7d8-b6587538e84e"
-SESSION_ID = "65489d7c9ad727940f2ab26f"
+# Define the API endpoint and your API key.
+api_endpoint = "https://api.afforai.com/api/api_completion"
+api_key = "your_api_key"
 
-def ask_affo(question):
-  """
-  Sends a question to the AffoRAI API and returns the response.
-  """
-  payload = {
-    "apiKey": API_KEY,
-    "sessionID": SESSION_ID,
-    "history": [{"role": "user", "content": question}],
-    "powerful": True,
-    "google": True,
-  }
-  response = requests.post(API_URL, json=payload)
-  return response.json()["completions"][0]["text"]
+# Create a Streamlit app.
+st.title("Guatemala Legal Information App")
 
-st.title("Pregunta sobre las leyes de Guatemala")
+# Create a text input field for the user to enter their question.
+user_question = st.text_input("Ask a question about the laws of Guatemala:", placeholder="What are the laws regarding marriage in Guatemala?")
 
-# Input field for the user's question
-user_question = st.text_input("¿Qué pregunta tienes sobre las leyes de Guatemala?")
+# Create a button for the user to submit their question.
+if st.button("Get Answer"):
+    # Prepare the request body.
+    request_body = {
+        "apiKey": api_key,
+        "sessionID": "65489d7c9ad727940f2ab26f",
+        "history": [
+            {"role": "user", "content": user_question}
+        ],
+        "powerful": True,
+        "google": True,
+    }
 
-# Button to trigger the AffoRAI query
-if st.button("Preguntar"):
-  # Send the question to AffoRAI and get the response
-  affo_response = ask_affo(user_question)
+    # Send the request to the API.
+    response = requests.post(api_endpoint, json=request_body)
 
-  # Display the response with legal sources
-  st.success("Respuesta:")
-  st.markdown(affo_response)
-  st.markdown("---")
-  st.info("Fuentes legales:")
-  # TODO: Extract and display legal sources from the AffoRAI response
+    # Extract the answer from the API response.
+    answer = response.json()["candidates"][0]["output"]
 
-st.markdown("---")
-st.markdown("**Disclaimer:** Esta app no reemplaza el asesoramiento legal profesional. Siempre consulte con un abogado para obtener asesoramiento específico.")
+    # Display the answer to the user.
+    st.write(f"**Answer:** {answer}")
 
+    # Display the source of the answer.
+    st.write(f"**Source:** {response.json()['candidates'][0]['source']}")
